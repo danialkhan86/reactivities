@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using System;
 using Application.Activities;
+using System.Threading;
 
 namespace API.Controllers
 {
@@ -13,9 +14,9 @@ namespace API.Controllers
     {
       
         [HttpGet]
-        public async Task<ActionResult<List<Activity>>> GetActivities()
+        public async Task<ActionResult<List<Activity>>> GetActivities(CancellationToken ct)
         {
-            return await Mediator.Send(new List.Query());
+            return await Mediator.Send(new List.Query(),ct);
             
         }
 
