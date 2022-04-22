@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Header, List } from 'semantic-ui-react';
 
 function App() {
 const[activities,setActivities]=useState([]);
@@ -15,7 +14,7 @@ useEffect(()=>{
 
   return (
     <div className="App">
-      <Header as='h2' icon='users' content='Reactivities'></Header>
+      <header>Activities</header>
   
      
       <ul>
