@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { Activity } from '../models/activity';
+import { Header, Icon, List, ListItem } from 'semantic-ui-react';
+import NavBar from './NavBar';
+
 
 function App() {
-const[activities,setActivities]=useState([]);
+const[activities,setActivities]=useState<Activity[]>([]);
 
 useEffect(()=>{
-  axios.get('http://localhost:5000/api/activities').then(response => {
+  axios.get<Activity[]>('http://localhost:5000/api/activities').then(response => {
     console.log(response);
     setActivities(response.data); 
   })
@@ -14,14 +18,17 @@ useEffect(()=>{
 
   return (
     <div className="App">
-      <header>Activities</header>
-  
-     
-      <ul>
-        {activities.map((activity:any)=>(
-          <li key={activity.id}>{ activity.title }</li>
-        ))}
-      </ul>
+
+      <NavBar></NavBar>
+ 
+
+  <List>
+    {activities.map(activity=>(
+      <ListItem key={activity.id}>{activity.title}</ListItem>
+    ))}
+  </List>
+
+
     
     </div>
   );
