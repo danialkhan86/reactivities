@@ -47,6 +47,7 @@
     ]
   },
   "devDependencies": {
-    "install-peers": "^1.0.3"
+    "install-peers": "^1.0.3",
+    "semantic-ui-css": "git+https://github.com/Semantic-Org/Semantic-UI-CSS.git"
   }
 }

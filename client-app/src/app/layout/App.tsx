@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Activity } from '../models/activity';
-import { Header, Icon, List, ListItem } from 'semantic-ui-react';
+import { Container, Header, Icon, List, ListItem } from 'semantic-ui-react';
 import NavBar from './NavBar';
 
 
@@ -19,14 +19,20 @@ useEffect(()=>{
   return (
     <div className="App">
 
-      <NavBar></NavBar>
+      <NavBar />
+      <Container style={{ marginTop:'7em' }}>
+      <List>
+    {activities.map(activity=>(
+      <List.Item key={activity.id}>
+        {activity.title}
+      </List.Item>
+    ))}
+        </List>
+
+      </Container>
  
 
-  <List>
-    {activities.map(activity=>(
-      <ListItem key={activity.id}>{activity.title}</ListItem>
-    ))}
-  </List>
+
 
 
     
