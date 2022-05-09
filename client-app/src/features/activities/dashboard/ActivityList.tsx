@@ -6,9 +6,11 @@ import { Activity } from "../../../app/models/activity";
 
 interface Props{
     activities:Activity[];
+    selectActivity : (id:string) => void;
+
 }
 
-export default function ActivityList({activities}:Props){
+export default function ActivityList({activities,selectActivity}:Props){
     return(
 
         <Segment>
@@ -24,7 +26,7 @@ export default function ActivityList({activities}:Props){
                                     <div>{activity.city} , {activity.venu} </div>
                                 </Item.Description>
                                 <Item.Extra>
-                                    <Button floated='right' content='view' color='blue'></Button>
+                                    <Button onClick={()=>selectActivity(activity.id)} floated='right' content='view' color='blue'></Button>
                                     <Label basic content={activity.category}></Label>
                                 </Item.Extra>
                             </Item.Content>

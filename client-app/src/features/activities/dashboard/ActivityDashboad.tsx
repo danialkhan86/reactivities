@@ -7,19 +7,22 @@ import ActivityList from "./ActivityList";
 
 interface Props{
   activities:Activity[];
+  selectedActivity:Activity | undefined;
+  selectActivity : (id:string) => void;
+  cancelSelectActivity : ()=>void;
 }
 
-export default function ActivityDashBoad({activities}:Props) {
+export default function ActivityDashBoad({activities,selectedActivity,selectActivity,cancelSelectActivity}:Props) {
   return (
 
     <Grid>
       <GridColumn width='10'>
-        <ActivityList activities={activities} />
+        <ActivityList activities={activities} selectActivity={selectActivity} />
 
       </GridColumn>
       <GridColumn width='6'>
-        { activities[0] && 
-        <ActivityDetail activity={activities[0]} />}
+        { selectedActivity && 
+        <ActivityDetail activity={selectedActivity} cancelSelectActivity={cancelSelectActivity} />}
         <ActivityForm />
 
       </GridColumn>
