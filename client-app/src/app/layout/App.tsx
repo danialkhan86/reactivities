@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Activity } from '../models/activity';
-import { Button, Container } from 'semantic-ui-react';
+import { Container } from 'semantic-ui-react';
 import NavBar from './NavBar';
 import ActivityDashBoad from '../../features/activities/dashboard/ActivityDashboad';
 import {v4 as uuid} from 'uuid';
@@ -17,42 +17,13 @@ function App() {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [selectedActivity,setSelectedActivity]= useState<Activity | undefined>(undefined);
   const[editMode,setEditMode]=useState(false);
-  const[loading, setLoading]=useState(true);
   const[submitting,setSubmitting]=useState(false);
 
   useEffect(() => {
-    agent.Activities.list().then(response=>{
-      let activities: Activity []=[];
-      response.forEach(activity => {
-        activity.date=activity.date.split('T')[0];
-        activities.push(activity);
-      })
-      setActivities(activities);
-      setLoading(false);
-    // axios.get<Activity[]>('http://localhost:5000/api/activities').then(response => {
-    //   console.log(response);
-    //   setActivities(response.data);
-    })
-  }, [])
+  activityStore.loadActivities()
+  }, [activityStore])
 
-  function handelSelectedActivity(id:string)
-  {
-    setSelectedActivity(activities.find(x=>x.id === id));
-  }
-
-  function cancelSelectedActivity(){
-    setSelectedActivity(undefined);
-  }
-
-  function handleOpenForm(id?: string){
-    id ? handelSelectedActivity(id):cancelSelectedActivity();
-    setEditMode(true);
-  }
-
-  function handleCloseForm()
-  {
-    setEditMode(false);
-  }
+ 
 
   function handleCreateOrEditActivity(activity : Activity)
   {
@@ -90,22 +61,14 @@ function App() {
    
   }
 
-  if(loading) return <LoadingComponent content='Loading app' />
+  if(activityStore.loadingInitial) return <LoadingComponent content='Loading app' />
 
   return (
     <>
 
-      <NavBar openForm={handleOpenForm} />
+      <NavBar  />
       <Container style={{ marginTop: '7em' }}>
-        <h2>{activityStore.title}</h2>
-        <Button content='Add exclamation!' positive onClick={activityStore.setTitle}></Button>
-        <ActivityDashBoad activities={activities} 
-        selectedActivity={selectedActivity}
-        selectActivity={handelSelectedActivity}
-        cancelSelectActivity={cancelSelectedActivity}   
-        editMode={editMode}     
-        openForm={handleOpenForm}
-        closeForm={handleCloseForm}
+        <ActivityDashBoad activities={activityStore.activities} 
         createOrEdit={handleCreateOrEditActivity}
         deleteActivity={handleDeleteActivity}
         submitting={submitting}
