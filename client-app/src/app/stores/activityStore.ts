@@ -1,15 +1,15 @@
 import { action, makeAutoObservable, runInAction } from "mobx";
 import agent from "../api/agent";
 import { Activity } from "../models/activity";
-import {v4 as uuid} from 'uuid';
+import { v4 as uuid } from 'uuid';
 
 export default class ActivityStore {
 
-    activities: Activity[] = [];
+    activityRegistry=new Map<string, Activity>();
     selectedActivity: Activity | undefined = undefined;
     editMode = false;
     loading = false;
-    loadingInitial = false;
+    loadingInitial = true;
 
 
 
@@ -17,16 +17,21 @@ export default class ActivityStore {
         makeAutoObservable(this)
     }
 
+    get activitiesByDate(){
+        return Array.from(this.activityRegistry.values()).sort((a,b)=>
+            Date.parse(a.date)-Date.parse(b.date));
+    }
+
 
     loadActivities = async () => {
-        this.setLoadingInitial(true);
+       
         try {
 
             const activities = await agent.Activities.list();
 
             activities.forEach(activity => {
                 activity.date = activity.date.split('T')[0];
-                this.activities.push(activity);
+                this.activityRegistry.set(activity.id,activity);
             })
 
             this.setLoadingInitial(false);
@@ -45,68 +50,89 @@ export default class ActivityStore {
         this.loadingInitial = state;
     }
 
-    selectActivity=(id:string)=>{
-        this.selectedActivity=this.activities.find(a=>a.id===id);
+    selectActivity = (id: string) => {
+        this.selectedActivity =  this.activityRegistry.get(id); //this.activities.find(a => a.id === id);
     }
-    cancelSelectedActivity =()=>{
-        this.selectedActivity=undefined;
+    cancelSelectedActivity = () => {
+        this.selectedActivity = undefined;
     }
-    openForm =(id? : string)=>{
+    openForm = (id?: string) => {
         id ? this.selectActivity(id) : this.cancelSelectedActivity();
 
-        this.editMode=true;
+        this.editMode = true;
     }
 
-    closeForm=()=>{
-        this.editMode=false;
+    closeForm = () => {
+        this.editMode = false;
     }
 
-    createActivity = async (activity: Activity) =>{
-        this.loading=true;
-        activity.id=uuid();
-        try{
+    createActivity = async (activity: Activity) => {
+        this.loading = true;
+        activity.id = uuid();
+        try {
 
             await agent.Activities.create(activity);
-            runInAction(()=>{
-                this.activities.push(activity);
-                this.selectedActivity=activity;
-                this.editMode=false;
-                this.loading=false;
+            runInAction(() => {
+                this.activityRegistry.set(activity.id,activity);//this.activities.push(activity);
+                this.selectedActivity = activity;
+                this.editMode = false;
+                this.loading = false;
             })
 
         }
-        catch(error)
-        {
+        catch (error) {
             console.log(error);
-            runInAction(()=>{
-                this.loading=false;
+            runInAction(() => {
+                this.loading = false;
             })
         }
     }
 
-    updateActivity =async (activity:Activity) => {
+    updateActivity = async (activity: Activity) => {
 
-        this.loading=true;
-        try{
+        this.loading = true;
+        try {
             await agent.Activities.update(activity);
-            runInAction(()=>{
-                this.activities = [...this.activities.filter(a=>a.id !== activity.id),activity];
-                this.selectedActivity=activity;
-                this.editMode=false;
-                this.loading=false;
-               
+            runInAction(() => {
+                //this.activities = [...this.activities.filter(a => a.id !== activity.id), activity];
+                this.activityRegistry.set(activity.id,activity);
+                this.selectedActivity = activity;
+                this.editMode = false;
+                this.loading = false;
+
             })
 
         }
-        catch(error)
-        {
+        catch (error) {
             console.log(error);
-            runInAction(()=>{
-                this.loading=false;
+            runInAction(() => {
+                this.loading = false;
             })
 
         }
-        
+
+    }
+
+    deleteActivity = async (id: string) => {
+        this.loading = true;
+
+        try {
+            await agent.Activities.delete(id);
+            runInAction(() => {
+                this.activityRegistry.delete(id);
+                //this.activities = [...this.activities.filter(a => a.id !== id)];
+                if (this.selectedActivity?.id === id)
+                    this.cancelSelectedActivity();
+                this.loading = false;
+            })
+
+        }
+        catch (error) {
+            console.log(error);
+            runInAction(() => {
+                this.loading = false
+            })
+        }
     }
 }
 
